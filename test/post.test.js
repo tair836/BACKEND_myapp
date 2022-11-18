@@ -2,9 +2,11 @@ const request = require('supertest')
 const app = require('../server')
 const mongoose = require('mongoose')
 const Post = require('../models/post_model')
+const { count } = require('console')
 
 const newPostMessage = 'This is the new test post message'
 const newPostSender = '999000'
+let newPostId = ''
 
 beforeAll(async ()=>{
     await Post.remove()
@@ -17,22 +19,52 @@ afterAll(async ()=>{
 
 describe("Post Test", ()=>{
 
-    test("add new post", async()=>{
+    test("Add a new post", async()=>{
         const response = await request(app).post('/post').send({
             "message" : newPostMessage,
             "sender" : newPostSender
         })
         expect(response.statusCode).toEqual(200)
-        expect(response.body.post.message).toEqual(newPostMessage)
-        expect(response.body.post.sender).toEqual(newPostSender)
+        expect(response.body.newPost.message).toEqual(newPostMessage)
+        expect(response.body.newPost.sender).toEqual(newPostSender)
+        
+        newPostId = response.body.newPost._id
     })
 
-    test("get all posts", async()=>{
+    test("Get all posts", async()=>{
         const response = await request(app).get('/post')
         expect(response.statusCode).toEqual(200)
         expect(response.body[0].message).toEqual(newPostMessage)
         expect(response.body[0].sender).toEqual(newPostSender)
+
+        Post.find().count(function (err, count) {
+        if (err) console.log(err)
+        else expect(response.body.length).toEqual(count)
+        })
     })
+
+    test("Get a post by id", async()=>{
+        const response = await request(app).get('/post/'+newPostId)
+        expect(response.statusCode).toEqual(200)
+        expect(response.body.message).toEqual(newPostMessage)
+        expect(response.body.sender).toEqual(newPostSender)
+    })
+
+    test("Get a post by sender", async()=>{
+        const response = await request(app).get('/post?sender='+newPostSender)
+        expect(response.statusCode).toEqual(200)
+        expect(response.body[0].message).toEqual(newPostMessage)
+        expect(response.body[0].sender).toEqual(newPostSender)
+    })
+
+    test("Update a post", async()=>{
+        const response = await request(app).put('/post/'+newPostId)
+        expect(response.statusCode).toEqual(200)
+        expect(response.body[0].message).toEqual(newPostMessage)
+        expect(response.body[0].sender).toEqual(newPostSender)
+    })
+
+
 
    
 })

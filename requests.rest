@@ -1,14 +1,16 @@
 ###
 
-GET http://localhost:3000
+GET http://localhost:3000/post
 
 ###
 
-GET http://localhost:3000/post?sender=123457
+GET http://localhost:3000/post?sender=123456
+#/post?sender=<sender id>
 
 ###
 
-GET http://localhost:3000/post/635f918dc1380bbbfbfdd469
+GET http://localhost:3000/post/63777da308fe460adee2aecf
+#/post/<id of the post>
 
 ###
 POST http://localhost:3000/post
@@ -16,5 +18,14 @@ Content-Type: application/json
 
 {
     "message" : "this is my new message",
-    "sender" : "123457"
+    "sender" : "123456"
+}
+###
+
+PUT http://localhost:3000/post/637783d52ec6cd8191c31a0f
+Content-Type: application/json
+
+{
+    "message" : "This is a updated psot",
+    "sender" : "12345"
 }

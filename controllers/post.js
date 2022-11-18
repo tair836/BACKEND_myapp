@@ -41,10 +41,7 @@ const addNewPost = async (req,res,next)=>{
 
     try{
         newPost = await post.save()
-        res.status(200).send({
-            'status' : 'ok',
-            'post' : newPost
-        })
+        res.status(200).send({ newPost })
     }catch(err){
         res.status(400).send({
             'status' : 'faile',
@@ -53,4 +50,21 @@ const addNewPost = async (req,res,next)=>{
     }
 }
 
-module.exports = {getAllPosts, addNewPost, getPostById}
+const updatePost = async (req,res,next)=>{
+
+    try{
+        const updatePost = await Post.updateOne({_id: req.params.id}, req.body)
+        res.status(200).send({ updatePost })
+    }catch(err){
+        res.status(400).send({
+            updatePost
+            // 'status' : 'faile',
+            // 'message' : err.message
+        })
+    }
+      
+}
+
+    
+
+module.exports = {getAllPosts, addNewPost, getPostById, updatePost}
