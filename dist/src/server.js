@@ -15,6 +15,8 @@ const db = mongoose_1.default.connection;
 db.on('error', error => { console.error(error); });
 db.once('open', () => { console.log('connected to mongo'); });
 app.use('/public', express_1.default.static('public'));
+const auth_route_1 = __importDefault(require("./routes/auth_route"));
+app.use('/auth', auth_route_1.default);
 const post_route_1 = __importDefault(require("./routes/post_route"));
 app.use('/post', post_route_1.default);
 module.exports = app;

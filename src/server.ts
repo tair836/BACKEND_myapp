@@ -14,6 +14,9 @@ db.once('open',()=>{console.log('connected to mongo')})
 
 app.use('/public', express.static('public'))
 
+import authRouter from './routes/auth_route'
+app.use('/auth', authRouter)
+
 import postRouter from './routes/post_route'
 app.use('/post', postRouter)
 

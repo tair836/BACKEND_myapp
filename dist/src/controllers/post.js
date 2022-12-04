@@ -24,52 +24,44 @@ const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(200).send(posts);
     }
     catch (err) {
-        res.status(400).send({
-            'status': 'faile',
-            'message': err.message
-        });
+        res.status(400).send({ 'error': "fail to get posts from db" });
     }
 });
 const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.params.id);
     try {
         const posts = yield post_model_1.default.findById(req.params.id);
         res.status(200).send(posts);
     }
     catch (err) {
-        res.status(400).send({
-            'status': 'faile',
-            'message': err.message
-        });
+        res.status(400).send({ 'error': "fail to get posts from db" });
     }
 });
 const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     const post = new post_model_1.default({
         message: req.body.message,
         sender: req.body.sender
     });
     try {
         const newPost = yield post.save();
-        res.status(200).send({ newPost });
+        console.log("save post in db");
+        res.status(200).send(newPost);
     }
     catch (err) {
-        res.status(400).send({
-            'status': 'faile',
-            'message': err.message
-        });
+        console.log("fail to save post in db");
+        res.status(400).send({ 'error': 'fail adding new post to db' });
     }
 });
-const updatePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const putPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const updatePost = yield post_model_1.default.updateOne({ _id: req.params.id }, req.body);
-        res.status(200).send({ updatePost });
+        const post = yield post_model_1.default.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.status(200).send(post);
     }
     catch (err) {
-        res.status(400).send({
-            updatePost
-            // 'status' : 'faile',
-            // 'message' : err.message
-        });
+        console.log("fail to update post in db");
+        res.status(400).send({ 'error': 'fail adding new post to db' });
     }
 });
-module.exports = { getAllPosts, addNewPost, getPostById, updatePost };
+module.exports = { getAllPosts, addNewPost, getPostById, putPostById };
 //# sourceMappingURL=post.js.map
