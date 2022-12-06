@@ -60,25 +60,76 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!match)
             return sendError(res, 'incorrect user or password');
         const accessToken = yield jsonwebtoken_1.default.sign({ 'id': user._id }, process.env.ACCESS_TOKEN_SECRET, { 'expiresIn': process.env.JWT_TOKEN_EXPIRATION });
-        res.status(200).send({ 'access Token': accessToken });
+        const refreshToken = yield jsonwebtoken_1.default.sign({ 'id': user._id }, process.env.REFRESH_TOKEN_SECRET);
+        if (user.refresh_token == null)
+            user.refresh_token = [refreshToken];
+        else
+            user.refresh_token.push(refreshToken);
+        yield user.save();
+        res.status(200).send({ 'access Token': accessToken, 'refresh Token': refreshToken });
     }
     catch (err) {
         console.log("error: " + err);
         sendError(res, 'fail checking user');
     }
 });
+function getTokenFromRequset(req) {
+    const authHeader = req.headers['authorization'];
+    return authHeader && authHeader.split(' ')[1];
+}
+const refresh = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const refreshToken = getTokenFromRequset(req);
+    if (refreshToken == null)
+        return sendError(res, 'authorization missing');
+    try {
+        const user = yield jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const userObj = yield user_model_1.default.findById(user.id);
+        if (userObj == null)
+            return sendError(res, 'fail validating token');
+        if (!userObj.refresh_token.includes(refreshToken)) {
+            userObj.refresh_token = [];
+            yield userObj.save();
+            return sendError(res, 'fail validating token');
+        }
+        const newAccessToken = yield jsonwebtoken_1.default.sign({ 'id': user._id }, process.env.ACCESS_TOKEN_SECRET, { 'expiresIn': process.env.JWT_TOKEN_EXPIRATION });
+        const newRefreshToken = yield jsonwebtoken_1.default.sign({ 'id': user._id }, process.env.REFRESH_TOKEN_SECRET);
+        userObj.refresh_token[userObj.refresh_token.indexOf(refreshToken)];
+        yield userObj.save();
+        res.status(200).send({ 'access Token': newAccessToken, 'refresh Token': newRefreshToken });
+    }
+    catch (err) {
+        return sendError(res, 'fail validating token');
+    }
+});
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.status(400).send({ "error": "not implemented" });
+    const refreshToken = getTokenFromRequset(req);
+    if (refreshToken == null)
+        return sendError(res, 'authorization missing');
+    try {
+        const user = yield jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const userObj = yield user_model_1.default.findById(user.id);
+        if (userObj == null)
+            return sendError(res, 'fail validating token');
+        if (!userObj.refresh_token.includes(refreshToken)) {
+            userObj.refresh_token = [];
+            yield userObj.save();
+            return sendError(res, 'fail validating token');
+        }
+        userObj.refresh_token.splice(userObj.refresh_token.indexOf(refreshToken), 1);
+        yield userObj.save();
+        res.status(200).send();
+    }
+    catch (err) {
+        return sendError(res, 'fail validating token');
+    }
 });
 const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const authHeader = req.headers['authorization'];
-    if (authHeader == null)
-        return sendError(res, 'authorization missing');
-    const token = authHeader.split(' ')[1];
+    const token = getTokenFromRequset(req);
     if (token == null)
         return sendError(res, 'authorization missing');
     try {
         const user = yield jsonwebtoken_1.default.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        req.body.userId = user.id;
         console.log('token user: ' + user);
         next();
     }
@@ -86,5 +137,5 @@ const authenticateMiddleware = (req, res, next) => __awaiter(void 0, void 0, voi
         return sendError(res, 'fail validating token');
     }
 });
-module.exports = { login, register, logout, authenticateMiddleware };
+module.exports = { login, refresh, register, logout, authenticateMiddleware };
 //# sourceMappingURL=auth.js.map
