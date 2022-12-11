@@ -7,8 +7,9 @@
     "test": "tsc && jest --detectOpenHandles --forceExit ./dist/src/tests",
     "start": "tsc && node dist/src/app.js",
     "lint": "eslint . --ext .ts",
-    "devstart": "nodemon ./src/app.js",
-    "testAuth": "tsc && jest --detectOpenHandles --forceExit ./dist/src/tests/auth.test.js"
+    "devstart": "nodemon dist/src/app.js",
+    "testAuth": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/auth.test.js",
+    "testPost": "tsc && jest --detectOpenHandles --forceExit --runInBand ./dist/src/tests/post.test.js"
   },
   "author": "Tair Shriki",
   "license": "ISC",
@@ -31,6 +32,8 @@
     "jest": "^29.3.1",
     "nodemon": "^2.0.20",
     "supertest": "^6.3.1",
+    "swagger-jsdoc": "^6.2.5",
+    "swagger-ui-express": "^4.6.0",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.3"

@@ -39,6 +39,18 @@ const register = async (req:Request ,res:Response)=>{
     }
 }
 
+async function generateTokens(userId:string) {
+    const accessToken = await jwt.sign(
+        {'id': userId},
+        process.env.ACCESS_TOKEN_SECRET,
+        {'expiresIn': process.env.JWT_TOKEN_EXPIRATION}
+    )
+    const refreshToken = await jwt.sign(
+        {'id': userId},
+        process.env.REFRESH_TOKEN_SECRET
+    )
+    return {'accessToken': accessToken, 'refreshToken': refreshToken}
+}
 
 const login = async (req:Request ,res:Response)=>{
     const email = req.body.email
@@ -53,21 +65,13 @@ const login = async (req:Request ,res:Response)=>{
         const match = await bcrypt.compare(password, user.password)
         if(!match) return sendError(res,'incorrect user or password')
 
-        const accessToken = await jwt.sign(
-            {'id': user._id},
-            process.env.ACCESS_TOKEN_SECRET,
-            {'expiresIn': process.env.JWT_TOKEN_EXPIRATION}
-        )
-        const refreshToken = await jwt.sign(
-            {'id': user._id},
-            process.env.REFRESH_TOKEN_SECRET,
-        )
+        const tokens = await generateTokens(user._id.toString())
 
-        if(user.refresh_token == null) user.refresh_token = [refreshToken]
-        else user.refresh_token.push(refreshToken)
+        if(user.refresh_token == null) user.refresh_token = [tokens.refreshToken]
+        else user.refresh_token.push(tokens.refreshToken)
         await user.save()
 
-        res.status(200).send({'access Token':accessToken, 'refresh Token': refreshToken})
+        res.status(200).send(tokens)
 
     }catch (err){
         console.log("error: " + err)
@@ -96,21 +100,13 @@ const refresh = async (req:Request,res:Response)=>{
             await userObj.save()
             return sendError(res, 'fail validating token')
         }
-        const newAccessToken = await jwt.sign(
-            {'id': user._id},
-            process.env.ACCESS_TOKEN_SECRET,
-            {'expiresIn': process.env.JWT_TOKEN_EXPIRATION}
-        )
-        const newRefreshToken = await jwt.sign(
-            {'id': user._id},
-            process.env.REFRESH_TOKEN_SECRET,
-        )
+        
+        const tokens = await generateTokens(userObj._id.toString())
 
         userObj.refresh_token[userObj.refresh_token.indexOf(refreshToken)]
         await userObj.save()
 
-        res.status(200).send({'access Token':newAccessToken, 'refresh Token': newRefreshToken})
-    
+        res.status(200).send(tokens)
     }catch(err){
         return sendError(res, 'fail validating token')
     }

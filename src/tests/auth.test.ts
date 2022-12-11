@@ -39,9 +39,9 @@ describe("Auth Tests", ()=>{
             "password": userPassword
         })
         expect(response.statusCode).toEqual(200)
-        accessToken = response.body['access Token']
+        accessToken = response.body.accessToken
         expect(accessToken).not.toBeNull()
-        refreshToken = response.body['refresh Token']
+        refreshToken = response.body.refreshToken
         expect(refreshToken).not.toBeNull()
     })
       test("Login test wrong password",async ()=>{
@@ -73,9 +73,9 @@ describe("Auth Tests", ()=>{
         let response = await request(app).get('/auth/refresh').set('Authorization', 'JWT ' + refreshToken);
         expect(response.statusCode).toEqual(200)
 
-        const newAccessToken = response.body['access Token']
+        const newAccessToken = response.body.accessToken
         expect(newAccessToken).not.toBeNull()
-        const newRefreshToken = response.body['refresh Token']
+        const newRefreshToken = response.body.refreshToken
         expect(newRefreshToken).not.toBeNull()
          
         response = await request(app).get('/post').set('Authorization', 'JWT ' + newAccessToken);

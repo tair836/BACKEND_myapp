@@ -48,9 +48,9 @@ describe("Auth Tests", () => {
             "password": userPassword
         });
         expect(response.statusCode).toEqual(200);
-        accessToken = response.body['access Token'];
+        accessToken = response.body.accessToken;
         expect(accessToken).not.toBeNull();
-        refreshToken = response.body['refresh Token'];
+        refreshToken = response.body.refreshToken;
         expect(refreshToken).not.toBeNull();
     }));
     test("Login test wrong password", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -79,9 +79,9 @@ describe("Auth Tests", () => {
     test("Test refresh token", () => __awaiter(void 0, void 0, void 0, function* () {
         let response = yield (0, supertest_1.default)(server_1.default).get('/auth/refresh').set('Authorization', 'JWT ' + refreshToken);
         expect(response.statusCode).toEqual(200);
-        const newAccessToken = response.body['access Token'];
+        const newAccessToken = response.body.accessToken;
         expect(newAccessToken).not.toBeNull();
-        const newRefreshToken = response.body['refresh Token'];
+        const newRefreshToken = response.body.refreshToken;
         expect(newRefreshToken).not.toBeNull();
         response = yield (0, supertest_1.default)(server_1.default).get('/post').set('Authorization', 'JWT ' + newAccessToken);
         expect(response.statusCode).toEqual(200);
