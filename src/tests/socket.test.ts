@@ -71,7 +71,7 @@ describe("my awesome project", () => {
    });
 
    test("should work", (done) => {
-            client1.socket.once("echo:echo_res",(arg) => {
+        client1.socket.once("echo:echo_res",(arg) => {
            console.log("echo:echo")
            expect(arg.msg).toBe('hello');
            done();
@@ -81,15 +81,44 @@ describe("my awesome project", () => {
 
    
    test("Post get all test", (done) => {
-        client1.socket.once('post:get_all', (arg) => {
+        client1.socket.once('post:get', (arg) => {
             console.log("on any " + arg)
             expect(arg.status).toBe('OK');
             done();
         });
-        console.log(" test post get all")
-        client1.socket.emit("post:get_all","stam")
+        console.log("test post get all")
+        client1.socket.emit("post:get","stam")
     });
 
+    test("Get post by id test", (done) => {
+        client1.socket.once('post:get:id', (arg) => {
+            console.log("on any " + arg)
+            expect(arg.status).toBe('OK');
+            done();
+        });
+        console.log("test get post by id")
+        client1.socket.emit("post:get:id","stam")
+    });
+
+    test("Get post by sender test", (done) => {
+        client1.socket.once('post:get:sender', (arg) => {
+            console.log("on any " + arg)
+            expect(arg.status).toBe('OK');
+            done();
+        });
+        console.log("test get post by sender")
+        client1.socket.emit("post:get:sender","stam")
+    });
+
+    test("Add new post test", (done) => {
+        client1.socket.once('post:post', (arg) => {
+            console.log("on any " + arg)
+            expect(arg.status).toBe('OK');
+            done();
+        });
+        console.log("test add new post")
+        client1.socket.emit("post:post","stam")
+    });
 
     test("Test chat messages", (done)=>{
         const message = "hi... test 123"

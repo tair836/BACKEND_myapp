@@ -15,17 +15,24 @@ const post_1 = __importDefault(require("../controllers/post"));
 module.exports = (io, socket) => {
     const getAllPosts = () => __awaiter(void 0, void 0, void 0, function* () {
         const res = yield post_1.default.getAllPostsEvent();
-        socket.emit('post:get_all', res);
+        socket.emit('post:get', res);
     });
-    const getPostById = (payload) => {
-        socket.emit('echo:echo', payload);
-    };
-    const addNewPost = (payload) => {
-        socket.emit('echo:echo', payload);
-    };
+    const getPostById = () => __awaiter(void 0, void 0, void 0, function* () {
+        const res = yield post_1.default.getPostByIdEvent(socket.data.user);
+        socket.emit('post:get:id', res);
+    });
+    const getPostBySender = () => __awaiter(void 0, void 0, void 0, function* () {
+        const res = yield post_1.default.getPostBySenderEvent('12345');
+        socket.emit('post:get:sender', res);
+    });
+    const addNewPost = () => __awaiter(void 0, void 0, void 0, function* () {
+        const res = yield post_1.default.addNewPostEvent();
+        socket.emit('post:post', res);
+    });
     console.log('register echo handlers');
-    socket.on("post:get_all", getAllPosts);
-    socket.on("post:get_by_id", getPostById);
-    socket.on("post:add_new", addNewPost);
+    socket.on("post:get", getAllPosts);
+    socket.on("post:get:id", getPostById);
+    socket.on("post:get:sender", getPostBySender);
+    socket.on("post:post", addNewPost);
 };
 //# sourceMappingURL=postHandler.js.map

@@ -7,18 +7,25 @@ export = (io:Server<DefaultEventsMap,DefaultEventsMap,DefaultEventsMap>,
 
     const getAllPosts = async () => {
         const res = await postController.getAllPostsEvent()
-        socket.emit('post:get_all', res)
+        socket.emit('post:get', res)
     }
-    const getPostById = (payload) => {
-        socket.emit('echo:echo', payload)
+    const getPostById = async() => {
+        const res = await postController.getPostByIdEvent(socket.data.user)
+        socket.emit('post:get:id', res)
     }
-    const addNewPost = (payload) => {
-        socket.emit('echo:echo', payload)
+    const getPostBySender = async() => {
+        const res = await postController.getPostBySenderEvent('')
+        socket.emit('post:get:sender', res)
+    }
+    const addNewPost = async () => {
+        const res = await postController.addNewPostEvent()
+        socket.emit('post:post', res)
     }
 
 
     console.log('register echo handlers')
-    socket.on("post:get_all", getAllPosts)
-    socket.on("post:get_by_id", getPostById)
-    socket.on("post:add_new", addNewPost)
+    socket.on("post:get", getAllPosts)
+    socket.on("post:get:id", getPostById)
+    socket.on("post:get:sender", getPostBySender)
+    socket.on("post:post", addNewPost)
 }

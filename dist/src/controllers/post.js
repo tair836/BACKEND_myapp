@@ -21,6 +21,16 @@ const getAllPostsEvent = () => __awaiter(void 0, void 0, void 0, function* () {
         return { status: 'FAIL', data: [] };
     }
 });
+const getPostBySenderEvent = (sender) => __awaiter(void 0, void 0, void 0, function* () {
+    let posts = {};
+    try {
+        posts = yield post_model_1.default.find({ 'sender': sender });
+        return { status: 'OK', data: posts };
+    }
+    catch (err) {
+        return { status: 'FAIL', data: posts };
+    }
+});
 const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let posts = {};
@@ -36,6 +46,16 @@ const getAllPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(400).send({ 'error': "fail to get posts from db" });
     }
 });
+const getPostByIdEvent = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    let posts = {};
+    try {
+        posts = yield post_model_1.default.findById(id);
+        return { status: 'OK', data: posts };
+    }
+    catch (err) {
+        return { status: 'FAIL', data: posts };
+    }
+});
 const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.params.id);
     try {
@@ -44,6 +64,19 @@ const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (err) {
         res.status(400).send({ 'error': "fail to get posts from db" });
+    }
+});
+const addNewPostEvent = () => __awaiter(void 0, void 0, void 0, function* () {
+    const post = new post_model_1.default({
+        message: 'this is my new message',
+        sender: '123456'
+    });
+    try {
+        const newPost = yield post.save();
+        return { status: 'OK', data: newPost };
+    }
+    catch (err) {
+        return { status: 'FAIL', data: [] };
     }
 });
 const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -72,5 +105,6 @@ const putPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(400).send({ 'error': 'fail adding new post to db' });
     }
 });
-module.exports = { getAllPosts, addNewPost, getPostById, putPostById, getAllPostsEvent };
+module.exports = { getAllPosts, addNewPost, getPostById, putPostById,
+    getAllPostsEvent, addNewPostEvent, getPostByIdEvent, getPostBySenderEvent };
 //# sourceMappingURL=post.js.map

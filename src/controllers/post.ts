@@ -9,6 +9,15 @@ const getAllPostsEvent = async () =>{
         return {status: 'FAIL', data: []}
     }
 }
+const getPostBySenderEvent = async (sender:string) =>{
+    let posts = {}
+    try{
+        posts = await Post.find({'sender':sender}) 
+        return {status: 'OK', data: posts}
+    }catch(err){
+        return {status: 'FAIL', data: posts}
+    }
+}
 
 const getAllPosts = async (req:Request ,res:Response)=>{
     try{
@@ -24,6 +33,15 @@ const getAllPosts = async (req:Request ,res:Response)=>{
     }
 }
 
+const getPostByIdEvent = async (id:string) =>{
+    let posts = {}
+    try{
+        posts = await Post.findById(id) 
+        return {status: 'OK', data: posts}
+    }catch(err){
+        return {status: 'FAIL', data: posts}
+    }
+}
 const getPostById = async (req:Request,res:Response)=>{
     console.log(req.params.id)
 
@@ -35,7 +53,18 @@ const getPostById = async (req:Request,res:Response)=>{
     }
 }
 
-
+const addNewPostEvent = async () =>{
+    const post = new Post({
+        message: 'this is my new message',
+        sender: '123456'
+    })
+    try{
+        const newPost = await post.save()
+        return {status: 'OK', data: newPost}
+    }catch (err){
+        return {status: 'FAIL', data: []}
+    }
+}
 
 const addNewPost = async (req:Request,res:Response)=>{
     console.log(req.body)
@@ -65,4 +94,5 @@ const putPostById = async (req:Request,res:Response)=>{
     }
 }
 
-export = {getAllPosts, addNewPost, getPostById, putPostById, getAllPostsEvent}
+export = {getAllPosts, addNewPost, getPostById, putPostById,
+         getAllPostsEvent, addNewPostEvent, getPostByIdEvent, getPostBySenderEvent}
