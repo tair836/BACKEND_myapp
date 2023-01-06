@@ -1,6 +1,8 @@
 import Post from '../models/post_model'
 import { Request,Response } from 'express'
 
+let id_user = ''
+
 const getAllPostsEvent = async () =>{
     try{
         const posts = await Post.find()
@@ -9,10 +11,10 @@ const getAllPostsEvent = async () =>{
         return {status: 'FAIL', data: []}
     }
 }
-const getPostBySenderEvent = async (sender:string) =>{
+const getPostBySenderEvent = async (sender) =>{
     let posts = {}
     try{
-        posts = await Post.find({'sender':sender}) 
+        posts = await Post.find({'sender':sender.sender}) 
         return {status: 'OK', data: posts}
     }catch(err){
         return {status: 'FAIL', data: posts}
@@ -33,11 +35,12 @@ const getAllPosts = async (req:Request ,res:Response)=>{
     }
 }
 
-const getPostByIdEvent = async (id:string) =>{
+const getPostByIdEvent = async (id) =>{
+    id_user = id.id
     let posts = {}
     try{
-        posts = await Post.findById(id) 
-        return {status: 'OK', data: posts}
+        posts = await Post.findById(id.id) 
+        return {status: 'OK', data: posts, id: id_user}
     }catch(err){
         return {status: 'FAIL', data: posts}
     }
@@ -56,7 +59,7 @@ const getPostById = async (req:Request,res:Response)=>{
 const addNewPostEvent = async () =>{
     const post = new Post({
         message: 'this is my new message',
-        sender: '123456'
+        sender: '12345'
     })
     try{
         const newPost = await post.save()
@@ -84,6 +87,18 @@ const addNewPost = async (req:Request,res:Response)=>{
     }
 }
 
+const putPostByIdEvent = async () =>{
+
+    try{
+        console.log('id_user: '+id_user)
+        const post = await Post.findByIdAndUpdate(id_user,{message : "This is a updated psot"}, {new: true})
+        console.log('post:' + post)
+        return {status: 'OK', data: post}
+    }catch (err){
+        console.log("fail to update post in db")
+        return {status: 'FAIL', data: []}
+    }
+}
 const putPostById = async (req:Request,res:Response)=>{
     try{
         const post = await Post.findByIdAndUpdate(req.params.id, req.body, {new: true})
@@ -95,4 +110,4 @@ const putPostById = async (req:Request,res:Response)=>{
 }
 
 export = {getAllPosts, addNewPost, getPostById, putPostById,
-         getAllPostsEvent, addNewPostEvent, getPostByIdEvent, getPostBySenderEvent}
+         getAllPostsEvent, addNewPostEvent, getPostByIdEvent, getPostBySenderEvent, putPostByIdEvent}

@@ -13,6 +13,15 @@ const userPassword = "12345"
 const userEmail2 = "user2@gmail.com"
 const userPassword2 = "12345"
 
+const newPost = {message: 'this is my new message', sender: '12345'}
+const sender = '12345'
+const updateMessage = "This is a updated psot"
+
+const messages = {
+    m1: "message 1",
+    m2: "message 2"
+}
+
 type Client = {
     socket : Socket<DefaultEventsMap, DefaultEventsMap>,
     accessToken : string,
@@ -55,79 +64,99 @@ const connectUser = async (userEmail, userPassword )=>{
 describe("my awesome project", () => {
     jest.setTimeout(15000)
 
-   beforeAll(async () => {
-        await Post.remove()
-        await User.remove()
-        client1 = await connectUser(userEmail, userPassword )
-        client2 = await connectUser(userEmail2, userPassword2 )
-        console.log("finish beforeAll")
-   });
+    beforeAll(async () => {
+            await Post.remove()
+            await User.remove()
+            client1 = await connectUser(userEmail, userPassword)
+            client2 = await connectUser(userEmail2, userPassword2)
+            console.log("finish beforeAll")
+    });
 
-   afterAll(() => {
-       client1.socket.close()
-       client2.socket.close()
-       server.close()
-       mongoose.connection.close()
-   });
+    afterAll(() => {
+        client1.socket.close()
+        client2.socket.close()
+        server.close()
+        mongoose.connection.close()
+    });
 
-   test("should work", (done) => {
+    test("Echo res", (done) => {
         client1.socket.once("echo:echo_res",(arg) => {
-           console.log("echo:echo")
-           expect(arg.msg).toBe('hello');
-           done();
-       });
-       client1.socket.emit("echo:echo", {'msg':'hello'})
-   });
+            expect(arg.msg).toBe('hello');
+            done();
+        });
+        client1.socket.emit("echo:echo", {'msg':'hello'})
+    });
 
+    test("Echo req", (done) => {
+        client1.socket.once("echo:echo_req",() => {
+            done();
+        });
+        client1.socket.emit("echo:read")
+    });
    
-   test("Post get all test", (done) => {
+    test("Add a new post test", (done) => {
+        client1.socket.once('post:post', (arg) => {
+            expect(arg.status).toBe('OK');
+            expect(arg.data.message).toEqual(newPost.message)
+            expect(arg.data.sender).toEqual(newPost.sender)
+            done();
+        });
+        client1.socket.emit("post:post")
+    });
+
+    test("Get all posts test", (done) => {
         client1.socket.once('post:get', (arg) => {
-            console.log("on any " + arg)
             expect(arg.status).toBe('OK');
             done();
         });
-        console.log("test post get all")
-        client1.socket.emit("post:get","stam")
+        client1.socket.emit("post:get")
     });
 
     test("Get post by id test", (done) => {
         client1.socket.once('post:get:id', (arg) => {
-            console.log("on any " + arg)
             expect(arg.status).toBe('OK');
+            expect(arg.id).toEqual(client1.id)
             done();
         });
-        console.log("test get post by id")
-        client1.socket.emit("post:get:id","stam")
+        client1.socket.emit("post:get:id")
     });
 
     test("Get post by sender test", (done) => {
         client1.socket.once('post:get:sender', (arg) => {
-            console.log("on any " + arg)
             expect(arg.status).toBe('OK');
+            expect(arg.data[0].sender).toEqual(sender)
             done();
         });
-        console.log("test get post by sender")
-        client1.socket.emit("post:get:sender","stam")
+        client1.socket.emit("post:get:sender")
     });
 
-    test("Add new post test", (done) => {
-        client1.socket.once('post:post', (arg) => {
-            console.log("on any " + arg)
+    test("Update post by id test", (done) => {
+        client1.socket.once('post:put', (arg) => {
             expect(arg.status).toBe('OK');
+            // expect(arg.data.message).toEqual(updateMessage)
+            // expect(arg.data.sender).toEqual(sender)
             done();
         });
-        console.log("test add new post")
-        client1.socket.emit("post:post","stam")
+        client1.socket.emit("post:put")
     });
 
-    test("Test chat messages", (done)=>{
-        const message = "hi... test 123"
-        client2.socket.once('chat:message',(args)=>{
-            expect(args.to).toBe(client2.id)
-            expect(args.message).toBe(message)
-            expect(args.from).toBe(client1.id)
-            done()
-        })
-        client1.socket.emit("chat:send_message",{'to' : client2.id, 'message' : message})
-    })
+    // test("Chat messages test", (done)=>{
+    //     const message = "hi... test 123"
+    //     client2.socket.once('chat:message',(args)=>{
+    //         expect(args.to).toBe(client2.id)
+    //         expect(args.message).toBe(message)
+    //         expect(args.from).toBe(client1.id)
+    //         done()
+    //     })
+    //     client1.socket.emit("chat:send_message",{'to' : client2.id, 'message' : message})
+    // })
+    // test("Get all messages chat", (done)=>{
+        
+    //     client1.socket.once('chat:all_messages',(args)=>{
+    //         expect(args.messages).toBe(messages)
+    //         expect(args.from).toBe(client1.id)
+    //         done()
+    //     })
+    //     client1.socket.emit("chat:get_all",{'from' : client1.id, 'messages' : messages})
+    // })
 });

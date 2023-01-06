@@ -13,26 +13,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const post_1 = __importDefault(require("../controllers/post"));
 module.exports = (io, socket) => {
+    const addNewPost = () => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('post:post');
+        const res = yield post_1.default.addNewPostEvent();
+        socket.emit('post:post', res);
+    });
     const getAllPosts = () => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("post:get");
         const res = yield post_1.default.getAllPostsEvent();
         socket.emit('post:get', res);
     });
     const getPostById = () => __awaiter(void 0, void 0, void 0, function* () {
-        const res = yield post_1.default.getPostByIdEvent(socket.data.user);
+        console.log("post:get:id");
+        const res = yield post_1.default.getPostByIdEvent({ "id": socket.data.user });
         socket.emit('post:get:id', res);
     });
     const getPostBySender = () => __awaiter(void 0, void 0, void 0, function* () {
-        const res = yield post_1.default.getPostBySenderEvent('12345');
+        console.log("post:get:sender");
+        const res = yield post_1.default.getPostBySenderEvent({ "sender": '12345' });
         socket.emit('post:get:sender', res);
     });
-    const addNewPost = () => __awaiter(void 0, void 0, void 0, function* () {
-        const res = yield post_1.default.addNewPostEvent();
-        socket.emit('post:post', res);
+    const UpdatePost = () => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("post:put");
+        const res = yield post_1.default.putPostByIdEvent();
+        socket.emit('post:put', res);
     });
-    console.log('register echo handlers');
+    console.log('register post handlers');
     socket.on("post:get", getAllPosts);
     socket.on("post:get:id", getPostById);
     socket.on("post:get:sender", getPostBySender);
     socket.on("post:post", addNewPost);
+    socket.on("post:put", UpdatePost);
 };
 //# sourceMappingURL=postHandler.js.map
