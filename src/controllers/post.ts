@@ -2,6 +2,7 @@ import Post from '../models/post_model'
 import { Request,Response } from 'express'
 
 let id_user = ''
+let post_id = ''
 
 const getAllPostsEvent = async () =>{
     try{
@@ -63,6 +64,8 @@ const addNewPostEvent = async () =>{
     })
     try{
         const newPost = await post.save()
+        post_id = post.id
+        console.log("save post in db")
         return {status: 'OK', data: newPost}
     }catch (err){
         return {status: 'FAIL', data: []}
@@ -88,11 +91,8 @@ const addNewPost = async (req:Request,res:Response)=>{
 }
 
 const putPostByIdEvent = async () =>{
-
     try{
-        console.log('id_user: '+id_user)
-        const post = await Post.findByIdAndUpdate(id_user,{message : "This is a updated psot"}, {new: true})
-        console.log('post:' + post)
+        const post = await Post.findByIdAndUpdate(post_id,{message : "This is the updated message"}, {new: true})
         return {status: 'OK', data: post}
     }catch (err){
         console.log("fail to update post in db")

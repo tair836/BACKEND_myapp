@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const post_model_1 = __importDefault(require("../models/post_model"));
 let id_user = '';
+let post_id = '';
 const getAllPostsEvent = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const posts = yield post_model_1.default.find();
@@ -75,6 +76,8 @@ const addNewPostEvent = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     try {
         const newPost = yield post.save();
+        post_id = post.id;
+        console.log("save post in db");
         return { status: 'OK', data: newPost };
     }
     catch (err) {
@@ -99,9 +102,7 @@ const addNewPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 const putPostByIdEvent = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log('id_user: ' + id_user);
-        const post = yield post_model_1.default.findByIdAndUpdate(id_user, { message: "This is a updated psot" }, { new: true });
-        console.log('post:' + post);
+        const post = yield post_model_1.default.findByIdAndUpdate(post_id, { message: "This is the updated message" }, { new: true });
         return { status: 'OK', data: post };
     }
     catch (err) {

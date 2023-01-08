@@ -15,12 +15,9 @@ const userPassword2 = "12345"
 
 const newPost = {message: 'this is my new message', sender: '12345'}
 const sender = '12345'
-const updateMessage = "This is a updated psot"
+const updateMessage = "This is the updated message"
 
-const messages = {
-    m1: "message 1",
-    m2: "message 2"
-}
+const messages = {m1: "message 1", m2:"message 2"}
 
 type Client = {
     socket : Socket<DefaultEventsMap, DefaultEventsMap>,
@@ -133,30 +130,31 @@ describe("my awesome project", () => {
     test("Update post by id test", (done) => {
         client1.socket.once('post:put', (arg) => {
             expect(arg.status).toBe('OK');
-            // expect(arg.data.message).toEqual(updateMessage)
-            // expect(arg.data.sender).toEqual(sender)
+            expect(arg.data.message).toEqual(updateMessage)
+            expect(arg.data.sender).toEqual(sender)
             done();
         });
         client1.socket.emit("post:put")
     });
 
-    // test("Chat messages test", (done)=>{
-    //     const message = "hi... test 123"
-    //     client2.socket.once('chat:message',(args)=>{
-    //         expect(args.to).toBe(client2.id)
-    //         expect(args.message).toBe(message)
-    //         expect(args.from).toBe(client1.id)
-    //         done()
-    //     })
-    //     client1.socket.emit("chat:send_message",{'to' : client2.id, 'message' : message})
-    // })
-    // test("Get all messages chat", (done)=>{
+    test("Chat messages test", (done)=>{
+        const message = "hi... test 123"
+        client2.socket.once('chat:message',(args)=>{
+            expect(args.to).toBe(client2.id)
+            expect(args.message).toBe(message)
+            expect(args.from).toBe(client1.id)
+            done()
+        })
+        client1.socket.emit("chat:send_message",{'to' : client2.id, 'message' : message})
+    })
+    test("Get all messages chat", (done)=>{
         
-    //     client1.socket.once('chat:all_messages',(args)=>{
-    //         expect(args.messages).toBe(messages)
-    //         expect(args.from).toBe(client1.id)
-    //         done()
-    //     })
-    //     client1.socket.emit("chat:get_all",{'from' : client1.id, 'messages' : messages})
-    // })
+        client1.socket.once('chat:all_messages',(args)=>{
+            expect(args.messages.m1).toBe(messages.m1)
+            expect(args.messages.m2).toBe(messages.m2)
+            expect(args.from).toBe(client1.id)
+            done()
+        })
+        client1.socket.emit("chat:get_all",{'from' : client1.id, 'messages' : messages})
+    })
 });
